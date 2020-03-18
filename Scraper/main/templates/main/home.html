@@ -1,0 +1,10 @@
+<h1>IDEALISTA SCRAPING</h1>
+
+<form action="{% url 'crawl' %}" method="post">
+{% csrf_token %}
+{% for post in post_list %}
+    <li><a href="{% url 'detail' post.id %}">{{ post.name }}</a></li>
+{% endfor %}
+<br>
+<input type="submit" value="Crawl">
+</form>

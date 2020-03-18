@@ -1,0 +1,16 @@
+handle errors por si no puedo entrar
+hacerlo para que rote muchos user_agent
+parametrizar el lugar donde scrapear
+ver que onda lo que comente en urls.py
+cuanto tardo el scraping y cuantos items saco (cuantas paginas o algo de chimi)
+que me vaya generando los unique_id de a uno
+fecha de ultima actualizacion
+borrar tabla anterior
+hacer el models.py todo desde el init
+timezone automatizado (esp)
+scrapear opciones de compra, venta
+bajar version de scrapy para salvar warning
+borrar la base solo si anduvo bien el scraping (new=True)
+tests!!!!
+ultima busqueda: fecha y filtros
+verificar links vacios o errores
