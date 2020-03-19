@@ -13,8 +13,8 @@ class Post(Model):
     # def __init__(self, name=None, price=None):
     #     self.name = name
     #     self.price = price
-    id = IntegerField(primary_key=True)
-    # id = AutoField(primary_key=True)
+    # id = IntegerField(primary_key=True)
+    id = AutoField(primary_key=True)
     name = CharField(max_length=100)
     price = IntegerField()
     link = URLField(default='idealista.com')

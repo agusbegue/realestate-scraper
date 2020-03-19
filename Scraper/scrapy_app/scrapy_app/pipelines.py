@@ -27,7 +27,7 @@ class ScrapyAppPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            post = Post(id=item['id'][0], name=item['name'][0], price=item['price'][0])
+            post = Post(**{key: value[0] for key, value in item.items()})
             post.save()
         except Exception as e:
             print(str(e))

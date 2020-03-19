@@ -10,10 +10,12 @@ from scrapy.loader.processors import MapCompose, TakeFirst
 
 
 def parse_dots(text):
-    return int(text.replace('.', ''))
+    return int(text.strip().replace('.', ''))
+
 
 def link_generator(text):
     return 'idealista.com' + text
+
 
 class PostItem(Item):
     id = Field()
