@@ -1,5 +1,5 @@
 handle errors por si no puedo entrar
-hacerlo para que rote muchos user_agent
+hacerlo para que rote muchos user_agent - rotating proxy
 parametrizar el lugar donde scrapear
 ver que onda lo que comente en urls.py
 cuanto tardo el scraping y cuantos items saco (cuantas paginas o algo de chimi)
@@ -14,5 +14,5 @@ borrar la base solo si anduvo bien el scraping (new=True)
 tests!!!!
 ultima busqueda: fecha y filtros
 verificar links vacios o errores
-validar lo de los metros cuadrados (muy changa)
 superficie: +- 5% o rango?
+ordenar todos los imports -- depurar codigo

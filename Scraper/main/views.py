@@ -45,7 +45,7 @@ class HomeView(generic.ListView):
     template_name = 'main/home.html'
 
     def get_queryset(self):
-        """Return the last five published questions."""
+        """Return the last five published posts."""
         return Post.objects.filter(id__lte=6)
 
 

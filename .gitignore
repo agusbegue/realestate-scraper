@@ -1,4 +1,5 @@
-venv
+venv/
 Scraper/db.sqlite3
-Scraper/scrapy_app/logs
-Scraper/scrapy_app/dbs
+Scraper/scrapy_app/logs/
+Scraper/scrapy_app/dbs/
+.idea/

@@ -14,7 +14,7 @@ def parse_dots(text):
 
 
 def link_generator(text):
-    return 'idealista.com' + text
+    return 'www.idealista.com' + text
 
 
 class PostItem(Item):
@@ -23,9 +23,3 @@ class PostItem(Item):
     price = Field(input_processor=MapCompose(parse_dots))
     link = Field(input_processor=MapCompose(link_generator))
     meters = Field(input_processor=MapCompose(parse_dots))
-
-
-
-
-
-

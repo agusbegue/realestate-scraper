@@ -27,6 +27,8 @@ BOT_NAME = 'scrapy_app'
 SPIDER_MODULES = ['scrapy_app.spiders']
 NEWSPIDER_MODULE = 'scrapy_app.spiders'
 
+MAX_RETRIES = 5
+
 # # Database
 CONNECTION_STRING = 'sqlite:///scrapy_quotes.db'
 # # MySQL
@@ -39,13 +41,13 @@ CONNECTION_STRING = 'sqlite:///scrapy_quotes.db'
 #      db_name="scrapy_quotes",
 # )
 
+# DOWNLOAD_TIMEOUT = 180
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'scrapy_app (+http://www.yourdomain.com)'
-USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+#USER_AGENT = 'scrapy_app (+http://www.yourdomain.com)'
+#USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
-# CONCURRENT_REQUESTS = 1
-# DOWNLOAD_DELAY = 5
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -59,7 +61,7 @@ ROBOTSTXT_OBEY = True
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -78,9 +80,25 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'scrapy_app.middlewares.ScrapyAppDownloaderMiddleware': 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+   'scrapy_app.middlewares.ScrapyAppDownloaderMiddleware': 999,
+   'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+   'scrapy_useragents.downloadermiddlewares.useragents.UserAgentsMiddleware': 500,
+}
+
+USER_AGENTS = [
+    ('Mozilla/5.0 (X11; Linux x86_64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/57.0.2987.110 '
+     'Safari/537.36'),  # chrome
+    ('Mozilla/5.0 (X11; Linux x86_64) '
+     'AppleWebKit/537.36 (KHTML, like Gecko) '
+     'Chrome/61.0.3163.79 '
+     'Safari/537.36'),  # chrome
+    ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:55.0) '
+     'Gecko/20100101 '
+     'Firefox/55.0')  # firefox
+]
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
