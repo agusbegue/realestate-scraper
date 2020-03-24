@@ -83,22 +83,14 @@ COOKIES_ENABLED = False
 DOWNLOADER_MIDDLEWARES = {
    'scrapy_app.middlewares.ScrapyAppDownloaderMiddleware': 999,
    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-   'scrapy_useragents.downloadermiddlewares.useragents.UserAgentsMiddleware': 500,
+   'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 500,
+   'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
+   'scrapy_rotated_proxy.downloadmiddlewares.proxy.RotatedProxyMiddleware': 750,
 }
+ROTATED_PROXY_ENABLED = True
+PROXY_STORAGE = 'scrapy_rotated_proxy.extensions.file_storage.FileProxyStorage'
+PROXY_FILE_PATH = 'proxies.txt'
 
-USER_AGENTS = [
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-     'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/57.0.2987.110 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Linux x86_64) '
-     'AppleWebKit/537.36 (KHTML, like Gecko) '
-     'Chrome/61.0.3163.79 '
-     'Safari/537.36'),  # chrome
-    ('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:55.0) '
-     'Gecko/20100101 '
-     'Firefox/55.0')  # firefox
-]
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

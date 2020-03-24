@@ -72,7 +72,8 @@ class ScrapyAppDownloaderMiddleware(object):
         # Called for each request that goes through the downloader
         # middleware.
         print('User agent: ', request.headers['User-Agent'])
-        print('Proxy: ', request.meta)
+        request.meta['proxy'] = 'http://2.187.131.37:8080'
+        print('Proxy: ', request.meta.get('proxy'))
         # Must either:
         # - return None: continue processing this request
         # - or return a Response object

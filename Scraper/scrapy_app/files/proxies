@@ -1,0 +1,25 @@
+# proxy file content, must conform to json format, otherwise will cause json
+# load error
+HTTP_PROXIES = [
+    'http://142.93.80.189:80'
+    'http://45.55.27.15:3128'
+    'http://45.33.67.40:8080'
+    'http://45.55.27.161:3128'
+    'http://45.55.27.161:8080'
+    'http://45.55.27.15:8080'
+    'http://45.33.98.252:8080'
+    'http://142.93.248.80:3128'
+    'http://45.55.9.218:3128'
+    'http://45.55.23.78:3128'
+    'http://148.77.34.196:39175'
+    'http://45.55.9.218:8080'
+    'http://45.55.23.78:8080'
+    'http://102.129.249.120:3128'
+    'http://142.93.197.146:80'
+    'http://102.129.249.120:8080'
+]
+# HTTPS_PROXIES = [
+#     'http://proxy0:8888',
+#     'http://user:pass@proxy1:8888',
+#     'https://user:pass@proxy1:8888'
+# ]

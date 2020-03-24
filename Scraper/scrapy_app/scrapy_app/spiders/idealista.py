@@ -31,12 +31,12 @@ class IdealistaSpider(CrawlSpider):
 
     def start_requests(self):
         print('entro start_reqs', self.start_urls)
-        yield Request(url=self.start_urls[0], callback=self.parsear, errback=self.fallao)
-                      #, meta={'retries': 0})
+        yield Request(url=self.start_urls[0], callback=self.parsear, errback=self.handle_errors, meta={'retries': 0})
 
     def parsear(self, response):
         print('entro a {}'.format(response.url))
-        # response.meta['retries'] = 0
+        print(response.meta.get("proxy"))
+        response.meta['retries'] = 0
         try:
             posts = response.css('article.item')
             for post in posts:
@@ -60,8 +60,8 @@ class IdealistaSpider(CrawlSpider):
                 # i += 1
             next_page = response.css('li.next a::attr(href)').get()
             print('entrando a ', next_page)
-            if next_page is not None and '7' not in next_page:
-                yield response.follow(next_page, callback=self.parsear, errback=self.handle_errors)
+            if next_page is not None and '10' not in next_page:
+                yield response.follow(next_page, callback=self.parsear, errback=self.handle_errors, meta=response.meta)
                 pass
 
         except Exception as e:
@@ -79,12 +79,10 @@ class IdealistaSpider(CrawlSpider):
             print('HttpError on ' + response.url)
             if response.status == 403:
                 print('Error 403, access denied')
-                # if response.meta['retries'] < MAX_RETRIES:
-                if True:
-                    # response.meta['retries'] += 1
+                if response.meta['retries'] < MAX_RETRIES:
+                    response.meta['retries'] += 1
                     try:
-                        #print('Retry N°{} on {}'.format(response.meta['retries'], response.url))
-                        print('retrying')
+                        print('Retry N°{} on {}'.format(response.meta['retries'], response.url))
                         yield response.follow(response.url, callback=self.parsear, errback=self.handle_errors,
                                               meta=response.meta, dont_filter=True)
                         #yield Request(response.url, callback=self.parsear, errback=self.handle_errors, dont_filter=True)

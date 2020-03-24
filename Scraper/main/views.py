@@ -15,17 +15,6 @@ from django.views import generic
 scrapyd = ScrapydAPI('http://localhost:6800')
 
 
-# def home(request):
-#     latest_item_list = Post.objects.all()
-#     context = {'latest_items_list': latest_item_list}
-#     return render(request, 'main/home.html', context)
-#
-#
-# def detail(request, item_id):
-#     item = get_object_or_404(Post, pk=item_id)
-#     return render(request, 'main/detail.html', {'item': item})
-
-
 def crawl(request, url='', domain=''):
     try:
         Post.objects.all().delete()
