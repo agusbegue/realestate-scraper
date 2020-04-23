@@ -1,47 +1,82 @@
+import json
+
 from uuid import uuid4
 from urllib.parse import urlparse
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST, require_http_methods
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.urls import reverse
 from scrapyd_api import ScrapydAPI
 # from main.utils import URLUtil
-from main.models import Post
 from django.views import generic
+from requests.exceptions import ConnectionError as ReqConnectionError
+import socket
 
-# connect scrapyd service
-scrapyd = ScrapydAPI('http://localhost:6800')
+from main.models import Post, ScrapyJob
+from main.options import categorias, lugares
 
+home_context = {'categorias': categorias.keys(), 'lugares': lugares}
 
-def crawl(request, url='', domain=''):
+@csrf_exempt
+def crawl(request):
     try:
         Post.objects.all().delete()
-        task = scrapyd.schedule('default', 'idealista',
-                                url=url, domain=domain)
-        # if any([post.new for post in Post.objects.all()]) or len(Post.objects.all()) == 0:
-        #     Post.objects.filter(new=False).delete()
-        #     return JsonResponse({'task_id': task, 'unique_id': str(uuid4()), 'status': 'started'})
-        # else:
-        #     return HttpResponse('Unable to scrape ' + url)
-        return JsonResponse({'task_id': task, 'unique_id': str(uuid4()), 'status': 'started'})
-    except ConnectionError:
-        return HttpResponse('Unable to connect to Scrapy API')
+
+        job = ScrapyJob('http://localhost:6800')
+        categoria = categorias[request.POST['categoria']]
+        lugar = lugares[request.POST['lugar']]
+        job.start(categoria, lugar)
+        context = {'task_id': job.task, 'status': job.status,
+                   'host': str(socket.gethostbyname(socket.gethostname()))}
+        # return redirect(reverse('loading', args=[context]))
+        return render(request, 'main/loading.html', context)
+    except KeyError:
+        return render(request, 'main/home.html', {'error_message': 'Selecciona una opcion pa', **home_context})
+    except ReqConnectionError:
+        #return redirect(reverse('error', kwargs={'details': 'Unable to connect to Scrapy API'}))
+        return render(request, 'main/error.html', {'details': 'Unable to connect to Scrapy API'})
+    except Exception as e:
+        return render(request, 'main/error.html', {'details': str(e)})
 
 
-class HomeView(generic.ListView):
-    template_name = 'main/home.html'
+def home(request):
+    return render(request, 'main/home.html', {'posts': len(Post.objects.all()), **home_context})
+
+
+def finished(request, context):
+    return render(request, 'main/finished.html', context)
+
+
+def error(request, context):
+    return render(request, 'main/error.html', context)
+
+
+def loading(request, context):
+    return render(request, 'main/loading.html', context)
+
+#def crawl_finished(request):
+    #context
+
+#@method_decorator(csrf_exempt, name='dispatch')
+class ListView(generic.ListView):
+    template_name = 'main/list.html'
 
     def get_queryset(self):
         """Return the last five published posts."""
-        return Post.objects.filter(id__lte=6)
+        return Post.objects.all()
 
 
 class DetailView(generic.DetailView):
     model = Post
     template_name = 'main/detail.html'
 
+
+def get_lugares(request):
+    return JsonResponse([{'id': i, 'text': val} for i, val in enumerate(lugares.keys())], safe=False)
 
 # @csrf_exempt
 # @require_http_methods(['POST', 'GET'])  # only get and post

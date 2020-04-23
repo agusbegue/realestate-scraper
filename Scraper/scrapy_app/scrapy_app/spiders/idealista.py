@@ -8,21 +8,31 @@ from scrapy.http import Request, Response
 from twisted.internet.error import DNSLookupError, TCPTimedOutError
 
 from scrapy_app.items import PostItem
-from scrapy_app.settings import MAX_RETRIES
+from scrapy_app.settings import MAX_RETRIES, POSTS_PER_PAGE
+
+class IpCheck(CrawlSpider):
+    name = 'ipcheck'
+    start_urls = ['https://www.whatismyip.com/']
+
+    def start_requests(self):
+        print('entrando a ', self.start_urls[0])
+        yield Request(self.start_urls[0], callback=self.parsear)
+
+    def parsear(self, response):
+        print('entro a ', response.url)
+        response.css('div.card-body')
 
 
 class IdealistaSpider(CrawlSpider):
     name = 'idealista'
-    #base_url = 'https://idealista.com'
-    start_urls = ['https://www.idealista.com/venta-viviendas/barcelona-barcelona/']
+    base_url = 'https://idealista.com'
+    allowed_domains = [base_url]
+    #start_urls = ['https://www.idealista.com/venta-viviendas/barcelona-barcelona/']
+    #start_urls = ['https://www.idealista.com/venta-viviendas/barcelona-barcelona/con-metros-cuadrados-mas-de_95,metros-cuadrados-menos-de_100/']
 
     def __init__(self, *args, **kwargs):
-        # We are going to pass these args from our django view.
-        # To make everything dynamic, we need to override them inside __init__ method
         self.url = kwargs.get('url')
-        self.domain = kwargs.get('domain')
-        # self.start_urls = [self.url]
-        # self.allowed_domains = [self.domain]
+        self.start_urls = [self.base_url + self.url]
 
         IdealistaSpider.rules = [
             Rule(LinkExtractor(unique=True), callback='parse_item'),
@@ -31,12 +41,30 @@ class IdealistaSpider(CrawlSpider):
 
     def start_requests(self):
         print('entro start_reqs', self.start_urls)
-        yield Request(url=self.start_urls[0], callback=self.parsear, errback=self.handle_errors, meta={'retries': 0})
+        yield Request(url=self.start_urls[0], callback=self.distribute_crawling, errback=self.handle_errors, meta={'retries': 0})
+
+    #pudo entrar a parsear desde handle_errors pero no desde aca, wtf
+    def distribute_crawling(self, response):
+        print('entro distrib')
+        try:
+            texto = response.css('h1.listing-title::text').getall()[1].strip()
+            cantidad_posts = int(texto[:texto.find(' ')].replace('.', ''))
+            if cantidad_posts > 0:
+                # n_pages = int((cantidad_posts - 1)/POSTS_PER_PAGE) + 1
+                n_pages = 5
+                print('crawling {} pages'.format(n_pages))
+                pages_list = ['pagina-{}.htm'.format(i) for i in range(2, n_pages+1)]
+                #creo que esto no esta andando
+                self.parsear(response)
+                for page in [''] + pages_list:
+                    print('entering url ', response.url + page)
+                    yield Request(response.url + page, callback=self.parsear, errback=self.handle_errors,
+                                  meta={'retries': 0}, dont_filter=True)
+        except Exception as e:
+            print('Problem extracting N° posts: ', str(e))
 
     def parsear(self, response):
         print('entro a {}'.format(response.url))
-        print(response.meta.get("proxy"))
-        response.meta['retries'] = 0
         try:
             posts = response.css('article.item')
             for post in posts:
@@ -58,11 +86,11 @@ class IdealistaSpider(CrawlSpider):
 
                 yield loader.load_item()
                 # i += 1
-            next_page = response.css('li.next a::attr(href)').get()
-            print('entrando a ', next_page)
-            if next_page is not None and '10' not in next_page:
-                yield response.follow(next_page, callback=self.parsear, errback=self.handle_errors, meta=response.meta)
-                pass
+            # next_page = response.css('li.next a::attr(href)').get()
+            # print('entrando a ', next_page)
+            # if next_page is not None and '10' not in next_page:
+            #     yield response.follow(next_page, callback=self.parsear, errback=self.handle_errors, meta=response.meta)
+            #     pass
 
         except Exception as e:
             print('error ', str(e))
@@ -83,9 +111,8 @@ class IdealistaSpider(CrawlSpider):
                     response.meta['retries'] += 1
                     try:
                         print('Retry N°{} on {}'.format(response.meta['retries'], response.url))
-                        yield response.follow(response.url, callback=self.parsear, errback=self.handle_errors,
-                                              meta=response.meta, dont_filter=True)
-                        #yield Request(response.url, callback=self.parsear, errback=self.handle_errors, dont_filter=True)
+                        yield Request(response.url, callback=self.parsear, errback=self.handle_errors,
+                                      meta=response.meta, dont_filter=True)
                     except:
                         print('no se pudo')
                 else:

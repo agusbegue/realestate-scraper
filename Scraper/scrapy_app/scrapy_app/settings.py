@@ -28,6 +28,7 @@ SPIDER_MODULES = ['scrapy_app.spiders']
 NEWSPIDER_MODULE = 'scrapy_app.spiders'
 
 MAX_RETRIES = 5
+POSTS_PER_PAGE = 30
 
 # # Database
 CONNECTION_STRING = 'sqlite:///scrapy_quotes.db'
@@ -50,7 +51,7 @@ CONNECTION_STRING = 'sqlite:///scrapy_quotes.db'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -74,9 +75,9 @@ COOKIES_ENABLED = False
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-# SPIDER_MIDDLEWARES = {
-#    'scrapy_app.middlewares.ScrapyAppSpiderMiddleware': 543,
-# }
+SPIDER_MIDDLEWARES = {
+   'scrapy_app.middlewares.ScrapyAppSpiderMiddleware': 543,
+}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
@@ -84,13 +85,12 @@ DOWNLOADER_MIDDLEWARES = {
    'scrapy_app.middlewares.ScrapyAppDownloaderMiddleware': 999,
    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 500,
-   'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
-   'scrapy_rotated_proxy.downloadmiddlewares.proxy.RotatedProxyMiddleware': 750,
+   #'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+   #'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+   #'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
+   #'scrapy_rotated_proxy.downloadmiddlewares.proxy.RotatedProxyMiddleware': 750,
 }
-ROTATED_PROXY_ENABLED = True
-PROXY_STORAGE = 'scrapy_rotated_proxy.extensions.file_storage.FileProxyStorage'
-PROXY_FILE_PATH = 'proxies.txt'
-
+#ROTATING_PROXY_LIST_PATH = '../files/proxies.txt'
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

@@ -1,10 +1,50 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js"></script>
+</head>
+<body>
 <h1>IDEALISTA SCRAPING</h1>
+
+<a href="{% url 'list' %}">{{posts}} items in database</a><br><br>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 <form action="{% url 'crawl' %}" method="post">
 {% csrf_token %}
-{% for post in post_list %}
-    <li><a href="{% url 'detail' post.id %}">{{ post.name }}</a></li>
-{% endfor %}
-<br>
+    <div>
+        {% for categoria in categorias %}
+            <input type="radio" name="categoria" id="categoria{{ forloop.counter}}" value="{{categoria}}">
+            <label for="categoria{{ forloop.counter}}">{{ categoria }}</label><br>
+        {% endfor %}
+    </div>
+    <br>
+    <div>
+        <label for="lugar">Ubicacion</label>
+        <select id="lugar" name="lugar"> </select>
+    </div>
+    <br>
 <input type="submit" value="Crawl">
 </form>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+      $.ajax({
+        url:'http://localhost:8080/lugares',
+        dataType: 'json',
+        success: function(data){
+          var $selectLugar = $('#lugar');
+          $(data).each(function(pos, elem){
+          var $option = $('<option value="'+elem.text+'">'+elem.text+'</option>')
+            $selectLugar.append($option);
+          });
+        }
+      });
+      $('#lugar').select2({
+        width:'20%',
+    });
+  });
+</script>
+</body>
+</html>

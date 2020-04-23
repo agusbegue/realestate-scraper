@@ -22,9 +22,15 @@ from main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.HomeView.as_view(), name='home'),
+    path('', views.home, name='home'),
+    path('posts/', views.ListView.as_view(), name='list'),
     path('posts/<int:pk>/', views.DetailView.as_view(), name='detail'),
     path('crawl/', views.crawl, name='crawl'),
+    path('error/', views.error, name='error'),
+    path('loading/', views.loading, name='loading'),
+    path('finished/', views.finished, name='finished'),
+    path('lugares/', views.get_lugares, name='lugares'),
+    #path('error/', TemplateView.as_view(template_name="error.html"), name='error'),
     # url(r'^$', TemplateView.as_view(template_name='index.html'), name='home'),
     # url(r'^api/crawl/', views.crawl, name='crawl'),
 ]
