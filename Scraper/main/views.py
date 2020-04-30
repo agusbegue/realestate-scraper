@@ -14,28 +14,28 @@ from scrapyd_api import ScrapydAPI
 # from main.utils import URLUtil
 from django.views import generic
 from requests.exceptions import ConnectionError as ReqConnectionError
+from django_datatables_view.base_datatable_view import BaseDatatableView
 import socket
 
 from main.models import Post, ScrapyJob
 from main.options import categorias, lugares
 
-home_context = {'categorias': categorias.keys(), 'lugares': lugares}
+crawl_context = {'categorias': categorias.keys(), 'lugares': lugares}
 
 @csrf_exempt
 def crawl(request):
     try:
-        Post.objects.all().delete()
-
-        job = ScrapyJob('http://localhost:6800')
         categoria = categorias[request.POST['categoria']]
         lugar = lugares[request.POST['lugar']]
-        job.start(categoria, lugar)
-        context = {'task_id': job.task, 'status': job.status,
+
+        job = ScrapyJob()
+        job.send(categoria, lugar)
+        context = {'id': job.id, 'categoria': categoria, 'lugar': lugar,
                    'host': str(socket.gethostbyname(socket.gethostname()))}
         # return redirect(reverse('loading', args=[context]))
-        return render(request, 'main/loading.html', context)
+        return render(request, 'main/started.html', context)
     except KeyError:
-        return render(request, 'main/home.html', {'error_message': 'Selecciona una opcion pa', **home_context})
+        return redirect(request, 'main/home.html', {'error_message': 'Selecciona una opcion pa', **crawl_context})
     except ReqConnectionError:
         #return redirect(reverse('error', kwargs={'details': 'Unable to connect to Scrapy API'}))
         return render(request, 'main/error.html', {'details': 'Unable to connect to Scrapy API'})
@@ -43,36 +43,57 @@ def crawl(request):
         return render(request, 'main/error.html', {'details': str(e)})
 
 
+@csrf_exempt
 def home(request):
-    return render(request, 'main/home.html', {'posts': len(Post.objects.all()), **home_context})
+    if request.method == 'POST' and 'delete_jobs' in request.POST:
+        ScrapyJob.objects.all().delete()
+    else:
+        #ScrapyJob.update_jobs()
+        pass
+    return render(request, 'main/home.html', {**crawl_context})
 
 
-def finished(request, context):
-    return render(request, 'main/finished.html', context)
+class OrderListJson(BaseDatatableView):
+
+    model = ScrapyJob
+    columns = ['id', 'scraped_url']
+    order_columns = ['id', 'scraped_url']
+    max_display_length = 100
+
+    def render_column(self, row, column):
+        if column == 'user':
+            return '{0} {1}'.format(row.id, row.scraped_url)
+        else:
+            return super(OrderListJson, self).render_column(row, column)
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            qs = qs.filter(name__istartswith=search)
+
+
+class JobView(generic.DetailView):
+    model = ScrapyJob
+    template_name = 'main/list.html'
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(JobView, self).get_context_data(**kwargs)
+        context['posts'] = Post.objects.filter(job__id=context['object'].id)
+        return context
+
+
+class PostView(generic.DetailView):
+    model = Post
+    template_name = 'main/detail.html'
+
+
+def loading(request, context):
+    return render(request, 'main/started.html', context)
 
 
 def error(request, context):
     return render(request, 'main/error.html', context)
-
-
-def loading(request, context):
-    return render(request, 'main/loading.html', context)
-
-#def crawl_finished(request):
-    #context
-
-#@method_decorator(csrf_exempt, name='dispatch')
-class ListView(generic.ListView):
-    template_name = 'main/list.html'
-
-    def get_queryset(self):
-        """Return the last five published posts."""
-        return Post.objects.all()
-
-
-class DetailView(generic.DetailView):
-    model = Post
-    template_name = 'main/detail.html'
 
 
 def get_lugares(request):

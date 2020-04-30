@@ -1,5 +1,11 @@
-<h1>ERROR</h1>
+{% extends "main/base.html" %}
 
-<h3>Details: {{details}}</h3>
+{% block title %}Error{% endblock %}
 
-<a href="{% url 'home' %}">Volver al inicio</a>
+{% block content %}
+    <h2>ERROR</h2>
+
+    <h3>Details: {{details}}</h3>
+
+    <a href="{% url 'home' %}">Volver</a>
+{% endblock %}

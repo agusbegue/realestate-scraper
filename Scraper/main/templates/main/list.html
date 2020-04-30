@@ -1,8 +1,13 @@
-<h1>IDEALISTA SCRAPING</h1>
 
-<h3>Posts:</h3>
-<br>
+{% extends "main/base.html" %}
 
-{% for post in post_list %}
-    <li><a href="{% url 'detail' post.id %}">{{ post.name }}</a></li>
-{% endfor %}
+{% block title %}Publicaciones{% endblock %}
+
+{% block content %}
+    <h3>Posts:</h3>
+    <br>
+
+    {% for post in posts %}
+        <li><a href="{% url 'detail' post.id %}">{{ post.name }}</a></li>
+    {% endfor %}
+{% endblock %}

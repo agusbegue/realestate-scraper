@@ -18,11 +18,13 @@ class ScrapyAppPipeline(object):
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            unique_id=crawler.settings.get('unique_id'), # this will be passed from django view
+            unique_id=crawler.settings.get('unique_id'),  # this will be passed from django view
         )
 
+    def open_spider(self, spider):
+        pass
+
     def close_spider(self, spider):
-        # And here we are saving our crawled data with django models.
         pass
 
     def process_item(self, item, spider):
@@ -31,6 +33,7 @@ class ScrapyAppPipeline(object):
             post.save()
         except Exception as e:
             print(str(e))
+
 
 
 # class SavePostsPipeline(object):

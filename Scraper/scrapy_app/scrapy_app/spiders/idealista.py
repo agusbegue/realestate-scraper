@@ -1,26 +1,13 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapy.linkextractors import LinkExtractor
-from scrapy.spidermiddlewares.httperror import HttpError
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.loader import ItemLoader
 from scrapy.http import Request, Response
-from twisted.internet.error import DNSLookupError, TCPTimedOutError
 
 from scrapy_app.items import PostItem
 from scrapy_app.settings import MAX_RETRIES, POSTS_PER_PAGE
-
-class IpCheck(CrawlSpider):
-    name = 'ipcheck'
-    start_urls = ['https://www.whatismyip.com/']
-
-    def start_requests(self):
-        print('entrando a ', self.start_urls[0])
-        yield Request(self.start_urls[0], callback=self.parsear)
-
-    def parsear(self, response):
-        print('entro a ', response.url)
-        response.css('div.card-body')
+from main.models import ScrapyJob, FINISHED, RUNNING
 
 
 class IdealistaSpider(CrawlSpider):
@@ -31,8 +18,12 @@ class IdealistaSpider(CrawlSpider):
     #start_urls = ['https://www.idealista.com/venta-viviendas/barcelona-barcelona/con-metros-cuadrados-mas-de_95,metros-cuadrados-menos-de_100/']
 
     def __init__(self, *args, **kwargs):
+        self.job_task = kwargs.get('_job')
+        ScrapyJob.objects.filter(task=self.job_task).update(status=RUNNING)
         self.url = kwargs.get('url')
         self.start_urls = [self.base_url + self.url]
+        self.post_count = 0
+        self.http_status = 200
 
         IdealistaSpider.rules = [
             Rule(LinkExtractor(unique=True), callback='parse_item'),
@@ -40,7 +31,6 @@ class IdealistaSpider(CrawlSpider):
         super(IdealistaSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
-        print('entro start_reqs', self.start_urls)
         yield Request(url=self.start_urls[0], callback=self.distribute_crawling, errback=self.handle_errors, meta={'retries': 0})
 
     #pudo entrar a parsear desde handle_errors pero no desde aca, wtf
@@ -55,7 +45,7 @@ class IdealistaSpider(CrawlSpider):
                 print('crawling {} pages'.format(n_pages))
                 pages_list = ['pagina-{}.htm'.format(i) for i in range(2, n_pages+1)]
                 #creo que esto no esta andando
-                self.parsear(response)
+                #self.parsear(response)
                 for page in [''] + pages_list:
                     print('entering url ', response.url + page)
                     yield Request(response.url + page, callback=self.parsear, errback=self.handle_errors,
@@ -84,46 +74,29 @@ class IdealistaSpider(CrawlSpider):
                         meters = items[i-1]
                 loader.add_value('meters', meters)
 
+                loader.add_value('job_task', self.job_task)
+                self.post_count += 1
                 yield loader.load_item()
-                # i += 1
-            # next_page = response.css('li.next a::attr(href)').get()
-            # print('entrando a ', next_page)
-            # if next_page is not None and '10' not in next_page:
-            #     yield response.follow(next_page, callback=self.parsear, errback=self.handle_errors, meta=response.meta)
-            #     pass
 
         except Exception as e:
             print('error ', str(e))
 
-    def fallao(self, response):
-        print('fallao')
-        print(response)
-
     def handle_errors(self, failure):
-        print('fallao')
-        print(repr(failure))
-        if failure.check(HttpError):
-            response = failure.value.response
-            print('HttpError on ' + response.url)
-            if response.status == 403:
-                print('Error 403, access denied')
-                if response.meta['retries'] < MAX_RETRIES:
-                    response.meta['retries'] += 1
-                    try:
-                        print('Retry N°{} on {}'.format(response.meta['retries'], response.url))
-                        yield Request(response.url, callback=self.parsear, errback=self.handle_errors,
-                                      meta=response.meta, dont_filter=True)
-                    except:
-                        print('no se pudo')
-                else:
-                    print('Exiting, max retries reached')
+        response = failure.value.response
+        if response.status == 403:
+            print('Error 403, access denied')
+            if response.meta['retries'] < MAX_RETRIES:
+                response.meta['retries'] += 1
+                yield Request(response.url, callback=self.parsear, errback=self.handle_errors,
+                              meta=response.meta, dont_filter=True)
+            else:
+                print('max retries')
+        print('status', response.status)
+        self.http_status = response.status
 
-        elif failure.check(DNSLookupError):
-            # this is the original request
-            request = failure.request
-            print('DNSLookupError on ' + request.url)
+    def close(self, reason):
+        ScrapyJob.objects.filter(task=self.job_task).update(status=FINISHED,
+                                                            post_count=self.post_count,
+                                                            http_status=self.http_status)
 
-        elif failure.check(TimeoutError, TCPTimedOutError):
-            request = failure.request
-            print('TimeoutError on ' + request.url)
 

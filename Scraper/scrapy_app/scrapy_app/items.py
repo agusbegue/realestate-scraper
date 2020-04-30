@@ -13,13 +13,11 @@ def parse_dots(text):
     return int(text.strip().replace('.', ''))
 
 
-def link_generator(text):
-    return 'www.idealista.com' + text
-
-
 class PostItem(Item):
     id = Field()
     name = Field()
     price = Field(input_processor=MapCompose(parse_dots))
-    link = Field(input_processor=MapCompose(link_generator))
+    link = Field()
     meters = Field(input_processor=MapCompose(parse_dots))
+    job_task = Field()
+

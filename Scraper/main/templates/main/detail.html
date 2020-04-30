@@ -1,13 +1,20 @@
-<h1>Publicacion numero {{post.id}}</h1>
+{% extends "main/base.html" %}
 
-<li>{{post.name}}</li>
-<li>Precio: {{post.price}} euros</li>
+{% block title %}Detalle publicacion{% endblock %}
 
-<a href=post.link><li>{{post.link}}</li></a>
+{% block content %}
+    <h1>Publicacion numero {{post.id}}</h1>
 
-<li>{{post.meters}} metros cuadrados</li>
-<br>
-<li>Precio por metro cuadrado: {{post.ratio}} €/m²</li>
-<br>
+    <li>{{post.name}}</li>
+    <li>Precio: {{post.price}} euros</li>
 
-<a href="{% url 'home' %}"><button>BACK</button></a>
+    <a href="https://www.idealista.com{{post.link}}" target="_blank"><li>www.idealista.com{{post.link}}</li></a>
+
+    <li>{{post.meters}} metros cuadrados</li>
+    <br>
+    <li>Precio por metro cuadrado: {{post.ratio}} €/m²</li>
+    <br>
+
+    <a href="{% url 'home' %}"><button>BACK</button></a>
+{% endblock %}
+
