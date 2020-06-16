@@ -6,7 +6,7 @@ from scrapy.loader import ItemLoader
 from scrapy.http import Request, Response
 
 from scrapy_app.items import PostItem
-from scrapy_app.settings import MAX_RETRIES, POSTS_PER_PAGE
+from scrapy_app.settings import MAX_RETRIES
 from main.models import ScrapyJob, FINISHED, RUNNING
 
 
@@ -14,14 +14,12 @@ class IdealistaSpider(CrawlSpider):
     name = 'idealista'
     base_url = 'https://idealista.com'
     allowed_domains = [base_url]
-    #start_urls = ['https://www.idealista.com/venta-viviendas/barcelona-barcelona/']
-    #start_urls = ['https://www.idealista.com/venta-viviendas/barcelona-barcelona/con-metros-cuadrados-mas-de_95,metros-cuadrados-menos-de_100/']
 
     def __init__(self, *args, **kwargs):
         self.job_task = kwargs.get('_job')
         ScrapyJob.objects.filter(task=self.job_task).update(status=RUNNING)
-        self.url = kwargs.get('url')
-        self.start_urls = [self.base_url + self.url]
+        #self.url = kwargs.get('url')
+        self.start_url = 'https://www.idealista.com/point/venta-viviendas/36.71643/-4.30017/17/mapa-google'
         self.post_count = 0
         self.http_status = 200
 
@@ -31,9 +29,9 @@ class IdealistaSpider(CrawlSpider):
         super(IdealistaSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
-        yield Request(url=self.start_urls[0], callback=self.distribute_crawling, errback=self.handle_errors, meta={'retries': 0})
+        yield Request(url=self.start_url, callback=self.distribute_crawling,
+                      errback=self.handle_errors, meta={'retries': 0})
 
-    #pudo entrar a parsear desde handle_errors pero no desde aca, wtf
     def distribute_crawling(self, response):
         print('entro distrib')
         try:

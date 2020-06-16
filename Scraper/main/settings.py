@@ -1,3 +1,5 @@
 
 
 SCRAPYD_URL = 'http://localhost:6800'
+
+MAX_FILE_SIZE = 10485760
