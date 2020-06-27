@@ -9,7 +9,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="post" class="uniForm">
+                <form method="post" class="uniForm" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.as_p }}
                     <div class="form-group">

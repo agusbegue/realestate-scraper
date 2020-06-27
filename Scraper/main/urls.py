@@ -4,11 +4,11 @@ from main import views
 
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
-    # path('properties/<int:pk>', views.JobView.as_view(), name='properties'),
-    # re_path(r'^properties/(?P<pk>\w+)/$', views.JobView.as_view(), name='properties'),
     re_path(r'^properties(?:/(?P<job_id>d+))?/$', views.Properties.as_view(), name='properties'),
+    path('statistics/<int:pk>', views.StatisticsView.as_view(), name='statistics'),
 
-    path('options/<str:action>/<int:job_id>', views.OptionsHandlerView.as_view(), name='options'),
+    path('job-options/<str:action>/<int:job_id>', views.JobOptionsHandlerView.as_view(), name='job_options'),
+    path('prop-options/<str:action>/<int:prop_id>', views.PropertyOptionsHandlerView.as_view(), name='prop_options'),
 
     path('login/', views.Login.as_view(), name='login'),
     path('change-password', views.ChangePassword.as_view(), name='password'),
