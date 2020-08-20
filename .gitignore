@@ -2,5 +2,6 @@ venv/
 Scraper/scrapy_app/logs/
 Scraper/scrapy_app/dbs/
 .idea/
-**/__pycache__/
-**db.sqlite3
+__pycache__/
+*db.sqlite3
+*.py[cod]
