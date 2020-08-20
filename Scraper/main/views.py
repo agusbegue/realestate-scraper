@@ -1,21 +1,14 @@
-from django.views.generic import FormView, View, ListView, DetailView
-from django.shortcuts import get_object_or_404, render, redirect
-from requests.exceptions import ConnectionError as ReqConnectionError
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth import login, authenticate, logout
+from django.views.generic import FormView, View, ListView
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
+from django.db.models import Prefetch
 
-import io
-from scrapyd_api import ScrapydAPI
-from xlsxwriter.workbook import Workbook
-
-from main.models import ScrapyJob, Property, Statistics
+from main.models import ScrapyJob, Property
 from main.forms import JobForm
-from main.excel import FileCreator
 
 
 class Index(LoginRequiredMixin, ListView, FormView):
@@ -26,6 +19,7 @@ class Index(LoginRequiredMixin, ListView, FormView):
     success_url = '/'
 
     def get_queryset(self):
+        ## ver que onda las running
         return ScrapyJob.objects.filter(user=self.request.user)
 
     def form_valid(self, form):
@@ -39,23 +33,18 @@ class Index(LoginRequiredMixin, ListView, FormView):
 
 class Properties(LoginRequiredMixin, View):
 
-    template = 'properties.html'
+    template = 'propertys.html'
 
     def get(self, request):
         if request.GET.get('job_id'):
-            job = ScrapyJob.objects.select_related('user').get(pk=request.GET.get('job_id'))
+            job = ScrapyJob.objects.select_related('user').prefetch_related(Prefetch('property_set__post_set'))\
+                                   .get(pk=request.GET['job_id'])
             if not job or job.user != request.user:
                 return render(request, 'error/404.html')
-            properties = Property.objects.filter(job=job)
+            propertys = job.property_set.all()
         else:
-            properties = Property.objects.filter(job__user=request.user)
-        return render(request, self.template, {'properties': properties})
-
-
-class StatisticsView(DetailView):
-
-    model = Statistics
-    template_name = 'statistics.html'
+            propertys = Property.objects.filter(job__user=request.user).prefetch_related('post_set')
+        return render(request, self.template, {'propertys': [{'prop': prop, 'posts': prop.post_set.all()} for prop in propertys]})
 
 
 class Login(View):
@@ -84,12 +73,9 @@ class ChangePassword(PasswordChangeView):
     success_url = ''
 
 
-class OptionsHandlerView(LoginRequiredMixin, View):
+class JobOptionsHandlerView(LoginRequiredMixin, View):
     error_404 = 'error/404.html'
     error_500 = 'error/500.html'
-
-
-class JobOptionsHandlerView(OptionsHandlerView):
 
     def get(self, request, action, job_id):
         if action == 'download':
@@ -105,13 +91,14 @@ class JobOptionsHandlerView(OptionsHandlerView):
         if action == 'delete':
             job = ScrapyJob.objects.select_related('user').get(id=job_id)
             if job and job.user == request.user:
-                job.cancel()
                 job.delete()
                 return JsonResponse({'status': 'success'})
         return render(request, self.error_404)
 
 
-class PropertyOptionsHandlerView(OptionsHandlerView):
+class PropertyOptionsHandlerView(LoginRequiredMixin, View):
+    error_404 = 'error/404.html'
+    error_500 = 'error/500.html'
 
     def get(self, request, action, prop_id):
         if action == 'download':
@@ -132,15 +119,3 @@ class PropertyOptionsHandlerView(OptionsHandlerView):
                 return JsonResponse({'status': 'success'})
         return render(request, self.error_404)
 
-
-'''
-class PropertyView(DetailView):
-    model = Property
-    template_name = 'main/detail.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # validar que ese usuario puede ver esa prop
-        context['property'] = get_object_or_404(Property, pk=kwargs['id'])
-        return context
-'''

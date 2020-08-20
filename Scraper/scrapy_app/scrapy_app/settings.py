@@ -62,16 +62,17 @@ CONCURRENT_REQUESTS = 32
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+COOKIES_ENABLED = True
+COOKIES_DEBUG = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
-#DEFAULT_REQUEST_HEADERS = {
-#   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-#   'Accept-Language': 'en',
-#}
+# DEFAULT_REQUEST_HEADERS = {
+#    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+#    'Accept-Language': 'en',
+# }
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
@@ -84,13 +85,12 @@ SPIDER_MIDDLEWARES = {
 DOWNLOADER_MIDDLEWARES = {
    'scrapy_app.middlewares.ScrapyAppDownloaderMiddleware': 999,
    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-   'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 500,
-   #'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
-   #'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
-   #'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
-   #'scrapy_rotated_proxy.downloadmiddlewares.proxy.RotatedProxyMiddleware': 750,
+   'scrapy_app.middlewares.RandomUserAgentMiddleware': 500,
+   'scrapy_app.middlewares.RotatingCookiesMiddleware': 2,
 }
-#ROTATING_PROXY_LIST_PATH = '../files/proxies.txt'
+
+RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408, 429]
+RETRY_TIMES = 3
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -101,7 +101,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'scrapy_app.pipelines.ScrapyAppPipeline': 300,
+   'scrapy_app.pipelines.ProcessPostPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

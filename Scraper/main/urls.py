@@ -5,7 +5,6 @@ from main import views
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
     re_path(r'^properties(?:/(?P<job_id>d+))?/$', views.Properties.as_view(), name='properties'),
-    path('statistics/<int:pk>', views.StatisticsView.as_view(), name='statistics'),
 
     path('job-options/<str:action>/<int:job_id>', views.JobOptionsHandlerView.as_view(), name='job_options'),
     path('prop-options/<str:action>/<int:prop_id>', views.PropertyOptionsHandlerView.as_view(), name='prop_options'),

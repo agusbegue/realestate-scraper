@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Scraper home{% endblock %}
+
+{% block links %}
+    <link href="/static/css/button.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block body %}
+    <main>
+        <div class="container-fluid">
+            <h1 class="mt-4">Dashboard</h1>
+            <div><br></div>
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-table mr-1"></i>Properties sent</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Type</th>
+                                    <th class="text-center">Address</th>
+                                    <th class="text-center">Area</th>
+                                    <th class="text-center">Parking</th>
+                                    <th class="text-center">Lift</th>
+                                    <th class="text-center">Average Price</th>
+                                    <th class="text-center">Whitness links</th>
+                                    <th class="text-center">Options</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for property in propertys %}
+                                <tr style="background-color:{{property.prop.row_color}}">
+                                    <td class="text-center">{{ property.prop.type }}</td>
+                                    <td class="text-center">{{ property.prop.address }}</td>
+                                    <td class="text-center">{{ property.prop.area }}</td>
+                                    <td class="text-center">{% if property.prop.parking %}<i class="fa fa-check" aria-hidden="true"></i>{% endif %}</td>
+                                    <td class="text-center">{% if property.prop.lift %}<i class="fa fa-check" aria-hidden="true"></i>{% endif %}</td>
+                                    <td class="text-center">{{ property.prop.get_price }}</td>
+                                    <td class="text-center">
+                                        {% for post in property.posts %}
+                                            <a class="btn btn-info" target="_blank" rel="noopener noreferrer" href="{{post.get_link}}">{{post.get_index}}</a>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn btn-primary btn-download" href="{% if property.prop.done %}{% url 'prop_options' 'download' property.prop.id %}{% else %}#{% endif %}">
+                                            <i class="fa fa-download"></i></a>
+                                        {% if property.prop.done %}
+                                            <a class="btn btn-primary btn-danger btn-del" data-toggle="modal" data-target="#modal-confirm-delete" data-url="{% url 'prop_options' 'delete' property.prop.id %}">
+                                                <i class="fa fa-trash"></i></a>
+                                        {% else %}
+                                            <a class="btn btn-primary btn-danger"><i class="fa fa-trash"></i></a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% include 'modal/confirm-delete.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            $('#dataTable').DataTable();
+        });
+    </script>
+    <script src="/static/js/options.js"></script>
+{% endblock %}

@@ -1,16 +1,15 @@
-import json
 from django.utils import timezone
 from django.db import models
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 from django.core.validators import ValidationError
 from django.contrib.auth.models import AbstractUser
 
 from scrapyd_api import ScrapydAPI
+from requests.exceptions import ConnectionError as RequestsConnectionError
 
-from main.settings import SCRAPYD_URL, MAX_FILE_SIZE
-from main.excel import FileReader, FileCreator
-from main import constants as c
+from main.settings import SCRAPYD_URL
+from main.utils.excel import FileReader, FileCreator
+from main.utils import constants as c
+from telegram_bot.errors import report_error
 
 
 class User(AbstractUser):
@@ -23,7 +22,6 @@ class ScrapyJob(models.Model):
 
     id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=10, default=c.PENDING)
-    task = models.CharField(max_length=25, default=c.NOT_DEFINED)
     details = models.CharField(max_length=50, null=True)
     date = models.DateTimeField(default=timezone.now)
     records = models.IntegerField(null=True)
@@ -33,40 +31,41 @@ class ScrapyJob(models.Model):
     def start(self, file):
         reader = FileReader(self)
         properties = reader.read(file)
-        self._send()
         self.save()
         if properties:
             self._save_properties(properties)
-
-    def cancel(self):
-        if not self.is_done:
-            # scrapyd = ScrapydAPI(SCRAPYD_URL)
-            # scrapyd.cancel('default', self.task)
-            pass
+            self._send()
 
     def to_file(self):
-        props = Property.objects.filter(job_id=self.id)
-        creator = FileCreator(props, bulk=True)
+        props = self.property_set.prefetch_related('post_set').all()
+        creator = FileCreator(props)
         return creator.get_data()
 
     def _send(self):
-        scrapyd = ScrapydAPI(SCRAPYD_URL)
-        self.task = '012345' # scrapyd.schedule('default', 'idealista', job_key=self.id)
+        try:
+            scrapyd = ScrapydAPI(SCRAPYD_URL)
+            scrapyd.schedule('default', 'idealista', job_id=self.id)
+        except RequestsConnectionError:
+            self.status = c.FAILED
+            self.save()
+            report_error(self.user.username, 'Connection Error: Scrapyd server not available')
 
     def _save_properties(self, properties):
+        prop_objects = []
         for data in properties:
             prop = Property(**data)
             prop.job_id = self.id
-        Property.objects.bulk_create(properties)
+            prop_objects.append(prop)
+        Property.objects.bulk_create(prop_objects)
 
     @property
     def row_color(self):
         if self.status == 'Pending' or self.status == 'Running':
             return 'LightYellow'
         elif self.status == 'Failed':
-            return 'LightCoral'
+            return 'Pink'
         else:
-            return 'PaleGreen'
+            return 'HoneyDew'
 
     @property
     def is_done(self):
@@ -75,14 +74,21 @@ class ScrapyJob(models.Model):
 
 class Property(models.Model):
 
+    job = models.ForeignKey(ScrapyJob, on_delete=models.CASCADE)
+
     type = models.CharField(max_length=30)
     address = models.CharField(max_length=100)
-    surface = models.FloatField()
+    area = models.FloatField()
     parking = models.BooleanField(default=False)
-    elevator = models.BooleanField(default=False)
+    lift = models.BooleanField(default=False)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
     valid = models.BooleanField(default=True)
-    job = models.ForeignKey(ScrapyJob, on_delete=models.CASCADE)
     done = models.BooleanField(default=False)
+
+    avg_price = models.FloatField(null=True)
+    radius = models.IntegerField(null=True)
 
     def clean(self):
         if False:
@@ -91,23 +97,49 @@ class Property(models.Model):
             raise SyntaxError('Blank fields')
 
     def to_file(self):
-        creator = FileCreator(self, bulk=False)
+        creator = FileCreator([self])
         return creator.get_data()
+
+    def get_posts(self):
+        return self.post_set.all()
 
     @property
     def row_color(self):
         if self.done:
-            return 'PaleGreen'
+            return 'HoneyDew'
         elif self.valid:
             return 'LightYellow'
         else:
-            return 'LightCoral'
+            return 'Pink'
+
+    @property
+    def get_price(self):
+        if self.avg_price:
+            return '€ ' + str(self.avg_price)
+        return ''
 
 
-class Statistics(models.Model):
+class Post(models.Model):
 
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    prop = models.ForeignKey(Property, on_delete=models.CASCADE)
+    index = models.IntegerField()
+    link = models.URLField()
     price = models.FloatField()
+    area = models.FloatField()
+    address = models.CharField(max_length=100)
+    distance = models.IntegerField()
+
+    @property
+    def get_index(self):
+        if self.index:
+            return str(self.index) + '°'
+        return ''
+
+    @property
+    def get_link(self):
+        if self.link:
+            return 'https://idealista.com' + str(self.link)
+        return '#'
 
 
 class UserData(models.Model):

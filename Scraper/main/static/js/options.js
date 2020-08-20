@@ -13,30 +13,29 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+var del_url;
+var del_row;
 
-//guardo el url con el *_id
-$('.btn-del').click(function(e){
+//guardo el url y row a borrar en la window
+$('#dataTable').on('click', '.btn-del', function () {
     console.log('entro');
-    var url = $(e.target).attr('data-url');
-    $('.btn-ok').data('url', url);
-    var index = e.target.parentNode.parentNode.rowIndex;
-    $('.btn-ok').data('index', index);
+    window.del_url = $(this).attr('data-url');
+    window.del_row = $(this).parents('tr');
 });
-$('.btn-info').click(function(e) {
-    console.log('hola');
-});
-//mando la request para borrar
+
+//confirmo y mando la request para borrar
 $('.btn-ok').click(function(e) {
     console.log('clickie');
     e.preventDefault();
     var csrftoken = getCookie('csrftoken');
     $.ajax({
-        url : $(e.target).data('url'),
+        url : window.del_url,
         type : "POST",
         data : {csrfmiddlewaretoken: csrftoken},
         success : function(json) {
             $('#modal-confirm-delete').modal('hide');
-            document.getElementById("dataTable").deleteRow($(e.target).data('index'));
+            $('#dataTable').DataTable().row($(window.del_row)).remove().draw();
+            console.log('borrado');
         },
         error : function() {
             console.log("error");

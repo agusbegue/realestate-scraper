@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from main.models import ScrapyJob, Property, Statistics, User
+from main.models import ScrapyJob, Property, Post, User
 
 admin.site.register(ScrapyJob)
 admin.site.register(Property)
-admin.site.register(Statistics)
+admin.site.register(Post)
+
 
 class CustomUserAdmin(UserAdmin):
     add_fieldsets = (

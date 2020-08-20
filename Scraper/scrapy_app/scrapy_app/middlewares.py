@@ -7,6 +7,31 @@
 
 from scrapy import signals
 
+from utils.cookies import cookies_list
+from utils.request_params import user_agents
+
+import random
+
+
+class RotatingCookiesMiddleware:
+
+    def process_request(self, request, spider):
+        cookies = random.choice(cookies_list)
+        request.cookies = cookies
+        # spider.log(u'Cookie number: {}'.format(cookies_list.index(cookies)))
+        return None
+
+
+class RandomUserAgentMiddleware:
+
+    # url = 'http://51.158.74.109/useragents/?format=json'
+
+    def process_request(self, request, spider):
+        user_agent = random.choice(user_agents)
+        request.headers['User-Agent'] = user_agent
+        # spider.log(u'User-Agent: {} {}'.format(request.headers.get('User-Agent'), request))
+        return None
+
 
 class ScrapyAppSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,

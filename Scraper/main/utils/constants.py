@@ -4,14 +4,17 @@ RUNNING = 'Running'
 FINISHED = 'Finished'
 FAILED = 'Failed'
 
-TIPO = 1
-DIRECCION = 2
-MUNICIPIO = 3
-PROVINCIA = 4
-SUPERFICIE = 5
+TYPE = 1
+ADDRESS = 2
+CITY = 3
+PROVINCE = 4
+AREA = 5
 PARKING = 6
-ASCENSOR = 7
+LIFT = 7
+LATITUDE = 8
+LONGITUDE = 9
 
+MAX_FILE_SIZE = 524288
 
 def filesize(size):
     y = 512000
@@ -26,3 +29,5 @@ def filesize(size):
         value = round(size/(step**3), 2)
         ext = ' Gb'
     return str(value)+ext
+
+BASE_LINK = 'idealista.com'

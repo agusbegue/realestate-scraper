@@ -31,15 +31,19 @@
                             <tbody>
                                 {% for job in scrapyjob_list %}
                                 <tr style="background-color:{{job.row_color}}">
-                                    <td class="text-center">{{ job.date }}</td>
+                                    <td class="text-center">{{ job.date|date:"M j, Y, H:i"}}</td>
                                     <td class="text-center">{{ job.status }}</td>
-                                    <td class="text-center">{{ job.details }}</td>
+                                    <td class="text-center">{{ job.details|default_if_none:"-" }}</td>
                                     <td class="text-center">
                                         <a class="btn btn-primary btn-info" href="{% url 'properties' %}?job_id={{ job.id }}"><i class="fa fa-eye"></i></a>
-                                        <a class="btn btn-primary btn-download" href="{% if job.is_done %}{% url 'job_options' 'download' job.id %}{% else %}#{% endif %}">
+                                        <a class="btn btn-primary btn-download btn-opt" href="{% if job.is_done %}{% url 'job_options' 'download' job.id %}{% else %}#{% endif %}">
                                             <i class="fa fa-download"></i></a>
-                                        <a class="btn btn-primary btn-danger btn-del" data-toggle="modal" data-target="#modal-confirm-delete" data-url="{% url 'job_options' 'delete' job.id %}">
-                                            <i class="fa fa-trash"></i></a>
+                                        {% if job.is_done %}
+                                            <a class="btn btn-primary btn-danger btn-del" data-toggle="modal" data-target="#modal-confirm-delete" data-url="{% url 'job_options' 'delete' job.id %}">
+                                                <i class="fa fa-trash"></i></a>
+                                        {% else %}
+                                            <a class="btn btn-primary btn-danger"><i class="fa fa-trash"></i></a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -54,5 +58,15 @@
 {% endblock %}
 
 {% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.fn.dataTable.moment('MMM D, YYYY, HH:mm');
+            $('#dataTable').DataTable({
+                "order": [[ 0, "desc" ]],
+            });
+        });
+    </script>
     <script src="/static/js/options.js"></script>
 {% endblock %}

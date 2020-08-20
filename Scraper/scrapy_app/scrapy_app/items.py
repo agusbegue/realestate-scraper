@@ -18,6 +18,11 @@ class PostItem(Item):
     name = Field()
     price = Field(input_processor=MapCompose(parse_dots))
     link = Field()
-    meters = Field(input_processor=MapCompose(parse_dots))
+    area = Field(input_processor=MapCompose(parse_dots))
     job_task = Field()
+    prop_id = Field()
+    distance = Field()
+
+    def __str__(self):
+        return ''
 
