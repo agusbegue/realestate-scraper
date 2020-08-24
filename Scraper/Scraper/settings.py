@@ -20,10 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'gi8@&6(zv_o*t8fkist8^la$hw-89uv_2ir46xkur%uqr0_n^*'
+SECRET_KEY = os.environ['IDEALISTA_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ['IDEALISTA_DEBUG']
 
 ALLOWED_HOSTS = []
 
@@ -118,3 +118,5 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
+import django_heroku
+django_heroku.settings(locals())

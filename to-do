@@ -14,6 +14,8 @@ ordenar todos los imports -- depurar codigo
 ver que onda el warning de la version de scrapy
 agregar opcion para cargar solo un property
 altura del texto de las tablas
+handle connection timeout (ver si se puede poner prioridad)
+
 
 scrapear las coordenadas a partir de la direccion?
 hacer que no tenga en cuenta la casa que esta analizando?
