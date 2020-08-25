@@ -1,1 +1,1 @@
-web: gunicorn Scraper.Scraper.wsgi
+web: gunicorn Scraper.wsgi
