@@ -11,6 +11,8 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Scraper.settings')
+from Scraper.settings import PROJECT_DIR
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', PROJECT_DIR + 'settings')
 
 application = get_wsgi_application()

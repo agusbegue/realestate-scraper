@@ -15,12 +15,16 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+if os.environ.get('HEROKU'):
+    PROJECT_DIR = 'Scraper.Scraper.'
+else:
+    PROJECT_DIR = 'Scraper.'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'jdafsdkjfbajkdfasjhdbfasdfOF8294TADSFASKDF' #os.environ['IDEALISTA_SECRET_KEY']
+SECRET_KEY = os.environ['IDEALISTA_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['IDEALISTA_DEBUG']
@@ -52,8 +56,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'Scraper.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -71,7 +73,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Scraper.wsgi.application'
+ROOT_URLCONF = PROJECT_DIR + 'urls'
+WSGI_APPLICATION = PROJECT_DIR + 'wsgi.application'
+
 
 
 # Database
