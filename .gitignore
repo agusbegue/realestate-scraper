@@ -3,5 +3,6 @@ Scraper/scrapy_app/logs/
 Scraper/scrapy_app/dbs/
 .idea/
 __pycache__/
+staticfiles/
 *db.sqlite3
 *.py[cod]
