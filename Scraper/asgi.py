@@ -11,8 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-from Scraper.settings import PROJECT_DIR
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', PROJECT_DIR + 'settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Scraper.settings')
 
 application = get_asgi_application()

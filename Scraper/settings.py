@@ -15,11 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-if os.environ.get('HEROKU'):
-    PROJECT_DIR = 'Scraper.Scraper.'
-else:
-    PROJECT_DIR = 'Scraper.'
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -56,6 +51,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+ROOT_URLCONF = 'Scraper.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -73,10 +70,7 @@ TEMPLATES = [
     },
 ]
 
-ROOT_URLCONF = PROJECT_DIR + 'urls'
-WSGI_APPLICATION = PROJECT_DIR + 'wsgi.application'
-
-
+WSGI_APPLICATION = 'Scraper.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
