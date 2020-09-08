@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ['IDEALISTA_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ['IDEALISTA_DEBUG']
+DEBUG = (os.environ['IDEALISTA_DEBUG'] == 'True')
 
 ALLOWED_HOSTS = []
 
