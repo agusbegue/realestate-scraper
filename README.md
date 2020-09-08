@@ -10,4 +10,4 @@ python manage.py migrate
 
 django runserver 8080
 
-cd Scrapy/scrapy_app && scrapyd
+cd scrapy_app && scrapyd
