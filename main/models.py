@@ -69,7 +69,7 @@ class ScrapyJob(models.Model):
 
     @property
     def is_done(self):
-        return self.status == c.FINISHED
+        return self.status == c.FINISHED or self.status == c.FAILED
 
 
 class Property(models.Model):

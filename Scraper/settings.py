@@ -15,15 +15,14 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'jdafsdkjfbajkdfasjhdbfasdfOF8294TADSFASKDF' #os.environ['IDEALISTA_SECRET_KEY']
+SECRET_KEY = os.environ['IDEALISTA_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ['IDEALISTA_DEBUG']
+DEBUG = (os.environ['IDEALISTA_DEBUG'] == 'True')
 
 ALLOWED_HOSTS = []
 
@@ -72,7 +71,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Scraper.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

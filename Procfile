@@ -1,1 +1,2 @@
-web: gunicorn Scraper.Scraper.wsgi
+release: python manage.py migrate --no-input
+web: gunicorn Scraper.wsgi
