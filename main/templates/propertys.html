@@ -38,11 +38,13 @@
                                     <td class="text-center">{% if property.prop.lift %}<i class="fa fa-check" aria-hidden="true"></i>{% endif %}</td>
                                     <td class="text-center">{{ property.prop.get_price }}</td>
                                     <td class="text-center">
-                                        {% for post in property.posts %}
-                                            <a class="btn btn-info" target="_blank" rel="noopener noreferrer" href="{{post.get_link}}">{{post.get_index}}</a>
-                                        {% empty %}
-                                            <p>No properties found</p>
-                                        {% endfor %}
+                                        {% if property.prop.done %}
+                                            {% for post in property.posts %}
+                                                <a class="btn btn-info" target="_blank" rel="noopener noreferrer" href="{{post.get_link}}">{{post.get_index}}</a>
+                                            {% empty %}
+                                                <p>No properties found</p>
+                                            {% endfor %}
+                                        {% endif %}
                                     </td>
                                     <td class="text-center">
                                         <a class="btn btn-primary btn-download" href="{% if property.prop.done %}{% url 'prop_options' 'download' property.prop.id %}{% else %}#{% endif %}">
