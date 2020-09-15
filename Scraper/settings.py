@@ -22,10 +22,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ['IDEALISTA_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.environ['IDEALISTA_DEBUG'] == 'True')
+DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1',
+                 '0.0.0.0',
+                 '54.207.176.82']
 
+# Spider listener
+SCRAPYD_URL = 'http://localhost:6800'
 
 # Application definition
 
@@ -116,5 +120,6 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
-import django_heroku
-django_heroku.settings(locals())
+if os.environ.get('HEROKU'):
+    import django_heroku
+    django_heroku.settings(locals())

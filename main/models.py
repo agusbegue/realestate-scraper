@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from scrapyd_api import ScrapydAPI
 from requests.exceptions import ConnectionError as RequestsConnectionError
 
-from main.settings import SCRAPYD_URL
+from Scraper.settings import SCRAPYD_URL
 from main.utils.excel import FileReader, FileCreator
 from main.utils import constants as c
 from telegram_bot.errors import report_error
@@ -47,6 +47,7 @@ class ScrapyJob(models.Model):
             scrapyd.schedule('default', 'idealista', job_id=self.id)
         except RequestsConnectionError:
             self.status = c.FAILED
+            self.details = 'Server error'
             self.save()
             report_error(self.user.username, 'Connection Error: Scrapyd server not available')
 

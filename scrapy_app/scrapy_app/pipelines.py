@@ -4,16 +4,17 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-from scrapy.exceptions import NotSupported
-from django.db.utils import IntegrityError
+import numpy as np
+import logging
 
 from utils.business import LEN_PROPERTIES, MAX_DIF_WITNESS
 from main.models import Property, Post, ScrapyJob
 from main.utils.constants import RUNNING, FINISHED, FAILED
 from scrapy_app.spiders.idealista import ERROR_CODE
+from scrapy_app.items import PropertyData
 from telegram_bot.errors import report_error
 
-import numpy as np
+#logging.basicConfig(level=logging.INFO)
 
 
 class ProcessPostPipeline:
@@ -29,12 +30,17 @@ class ProcessPostPipeline:
     #     )
 
     def open_spider(self, spider):
+        logging.info('Open spider for job {}'.format(spider.job_id))
         ScrapyJob.objects.filter(pk=spider.job_id).update(status=RUNNING)
 
     def close_spider(self, spider):
         self._process_posts(spider)
 
     def process_item(self, item, spider):
+        if isinstance(item, PropertyData):
+            if item['property_id'] not in self.posts.keys():
+                self.posts[item['property_id']] = []
+            return item
         values = {key: value[0] for key, value in item.items()}
         try:
             if values['prop_id'] not in self.posts:
@@ -53,6 +59,8 @@ class ProcessPostPipeline:
     def _process_posts(self, spider):
         errors = None
         for prop_id, prop_posts in self.posts.items():
+            if len(prop_posts) == 0:
+                Property.objects.filter(pk=prop_id).update(done=True)
             try:
                 posts_sorted = sorted(prop_posts, key=lambda p: p['price_sqm'])
                 top_posts = []
@@ -63,7 +71,7 @@ class ProcessPostPipeline:
                         break
                 avg_price = np.mean([post['price_sqm'] for post in top_posts])
                 if not spider.job_id:
-                    print(prop_id, avg_price, 'analyzed {}'.format(len(posts_sorted)))
+                    logging.info('Property {}: {} €/m² from {} posts'.format(prop_id, avg_price, len(posts_sorted)))
                 else:
                     post_obj_list = []
                     for i, post in enumerate(top_posts):
@@ -77,14 +85,13 @@ class ProcessPostPipeline:
                 Property.objects.filter(pk=prop_id).update(valid=False)
                 errors = e
 
-        print(errors)
         if not errors:
             ScrapyJob.objects.filter(pk=spider.job_id).update(status=FINISHED)
         else:
             ScrapyJob.objects.filter(pk=spider.job_id).update(status=FAILED)
             report_error(spider.user, 'Final Pipeline Error: ' + str(errors))
 
-        print('Done saving')
+        logging.info('Done saving data')
 
 
 # class SavePostsPipeline(object):

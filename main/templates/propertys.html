@@ -40,6 +40,8 @@
                                     <td class="text-center">
                                         {% for post in property.posts %}
                                             <a class="btn btn-info" target="_blank" rel="noopener noreferrer" href="{{post.get_link}}">{{post.get_index}}</a>
+                                        {% empty %}
+                                            <p>No properties found</p>
                                         {% endfor %}
                                     </td>
                                     <td class="text-center">

@@ -82,6 +82,8 @@ class FileCreator:
 
 class FileReader:
 
+    ALLOWED_EXTENSIONS = ['xlsx', 'xls']
+
     def __init__(self, job):
         self.job = job
 
@@ -93,10 +95,14 @@ class FileReader:
 
     def _validate(self, file):
 
+        if '.' not in file.name or file.name[file.name.index('.')+1:] not in self.ALLOWED_EXTENSIONS:
+            self.job.status = c.FAILED
+            self.job.details = 'Invalid file extension: [{}]'.format(file.name[file.name.index('.'):])
+            return
+
         if file.size > c.MAX_FILE_SIZE:
             self.job.status = c.FAILED
-            self.job.details = 'Max file size exceded {} expected less than {}'.format(c.filesize(file.size),
-                                                                                       c.filesize(c.MAX_FILE_SIZE))
+            self.job.details = 'Max file size exceded: [>{}]'.format(c.filesize(c.MAX_FILE_SIZE))
             return
 
         try:

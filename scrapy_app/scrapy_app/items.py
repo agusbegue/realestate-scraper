@@ -9,6 +9,10 @@ from scrapy.item import Item, Field
 from scrapy.loader.processors import MapCompose, TakeFirst
 
 
+class PropertyData(Item):
+    property_id = Field()
+
+
 def parse_dots(text):
     return int(text.strip().replace('.', ''))
 
@@ -22,6 +26,7 @@ class PostItem(Item):
     job_task = Field()
     prop_id = Field()
     distance = Field()
+
 
     def __str__(self):
         return ''

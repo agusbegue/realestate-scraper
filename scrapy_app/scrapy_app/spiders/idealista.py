@@ -3,13 +3,16 @@ from scrapy.spiders import CrawlSpider
 from scrapy.loader import ItemLoader
 from scrapy.http import Request
 
-from scrapy_app.items import PostItem
+from scrapy_app.items import PostItem, PropertyData
 from main.models import Property
 from utils import request_params, map_functions
 from utils.business import radius, MIN_WITNESSES
 from telegram_bot.errors import report_error
 
 import json
+import logging
+
+#logging.basicConfig(level=logging.INFO)
 
 ERROR_CODE = '-1'
 
@@ -19,7 +22,6 @@ class IdealistaSpider(CrawlSpider):
     name = 'idealista'
     base_url = 'https://idealista.com'
     link_url = 'https://www.idealista.com/ajax/listingcontroller/livesearchmapnopins.ajax'
-    # allowed_domains = [base_url]
 
     def __init__(self, *args, **kwargs):
 
@@ -33,7 +35,7 @@ class IdealistaSpider(CrawlSpider):
         else:
             self.propertys[-1] = {'latitude': 41.41306, 'longitude': 1.93301, 'area': 70}
             self.propertys[-2] = {'latitude': 41.38485, 'longitude': 1.61412, 'area': 120}
-            self.propertys[-3] = {'latitude': 41.35175, 'longitude': 1.70743, 'area': 140}
+            self.propertys[-3] = {'latitude': 40.63695, 'longitude': -3.855, 'area': 170}
             self.user = 'scrapy_test'
 
         self.len_items = {prop_id: 0 for prop_id in self.propertys.keys()}
@@ -42,7 +44,6 @@ class IdealistaSpider(CrawlSpider):
         super(IdealistaSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
-        print('Starting requests')
         for prop_id in self.propertys.keys():
             yield self.get_request(prop_id, 1)
 
@@ -67,10 +68,12 @@ class IdealistaSpider(CrawlSpider):
     def extract_link(self, response):
         link = json.loads(response.body)['jsonResponse']['listingSearchUrl']
         url = self.base_url + link
+        logging.debug(f"Prop: {response.meta['prop_id']}, url: {url}")
         yield Request(url=url, headers=request_params.headers, callback=self.extract, errback=self.handle_errors,
                       meta=response.meta)
 
     def extract(self, response):
+        yield PropertyData(property_id=response.meta['prop_id'])
         try:
             posts = response.css('article.item')
             for post in posts:
@@ -91,7 +94,6 @@ class IdealistaSpider(CrawlSpider):
                         area = items[i-1]
                 loader.add_value('area', area)
                 loader.add_value('distance', radius[response.meta['sweep']])
-
                 yield loader.load_item()
 
             next_page = response.css('li.next a::attr(href)').get()
@@ -108,7 +110,7 @@ class IdealistaSpider(CrawlSpider):
         if error_code == 403:
             report_error(self.user, 'Request Error: Spider blocked, unable to parse page [403]')
         else:
-            report_error(self.user, f'Request Error: Other {error_code}')
+            report_error(self.user, f'Request Error: Error code {error_code}')
 
     # def handle_errors(self, failure):
     #     response = failure.value.response
