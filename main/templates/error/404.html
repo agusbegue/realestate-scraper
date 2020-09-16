@@ -1,5 +1,6 @@
 
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Error 404{% endblock %}
 
@@ -14,7 +15,7 @@
                         <div class="row justify-content-center">
                             <div class="col-lg-6">
                                 <div class="text-center mt-4">
-                                    <img class="mb-4 img-error" src="assets/img/error-404-monochrome.svg" />
+                                    <img class="mb-4 img-error" src="{% static 'img/error-404-monochrome.svg' %}"/>
                                     <p class="lead">This requested URL was not found on this server.</p>
                                     <a href="{% url 'index' %}"><i class="fas fa-arrow-left mr-1"></i>Return to Dashboard</a>
                                 </div>

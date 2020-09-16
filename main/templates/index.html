@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Scraper home{% endblock %}
 
 {% block links %}
-    <link href="/static/css/button.css" rel="stylesheet"/>
+    <link href="{% static 'css/button.css' %}" rel="stylesheet"/>
 {% endblock %}
 
 {% block body %}
@@ -68,5 +69,5 @@
             });
         });
     </script>
-    <script src="/static/js/options.js"></script>
+    <script src="{% static 'js/options.js' %}"></script>
 {% endblock %}
