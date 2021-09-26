@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 from scrapy.spiders import CrawlSpider
 from scrapy.loader import ItemLoader
 from scrapy.http import Request
@@ -6,10 +8,9 @@ from scrapy.http import Request
 from scrapy_app.items import PostItem
 from main.models import Property
 from utils import request_params, map_functions
-from utils.business import radius, MIN_WITNESSES
+from utils.business_rules import radius, MIN_WITNESSES
 from telegram_bot.errors import report_error
 
-import json
 
 ERROR_CODE = '-1'
 

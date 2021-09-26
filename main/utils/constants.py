@@ -16,6 +16,7 @@ LONGITUDE = 9
 
 MAX_FILE_SIZE = 524288
 
+
 def filesize(size):
     y = 512000
     step = 1024
@@ -29,5 +30,6 @@ def filesize(size):
         value = round(size/(step**3), 2)
         ext = ' Gb'
     return str(value)+ext
+
 
 BASE_LINK = 'idealista.com'

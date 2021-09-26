@@ -4,13 +4,12 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import random
 
 from scrapy import signals
 
 from utils.cookies import cookies_list
 from utils.request_params import user_agents
-
-import random
 
 
 class RotatingCookiesMiddleware:

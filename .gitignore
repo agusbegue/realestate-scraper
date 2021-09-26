@@ -4,5 +4,6 @@ Scraper/scrapy_app/dbs/
 .idea/
 __pycache__/
 staticfiles/
+credentials.yaml
 *db.sqlite3
 *.py[cod]

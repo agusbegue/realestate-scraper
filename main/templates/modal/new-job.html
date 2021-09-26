@@ -1,3 +1,4 @@
+{% load static %}
 <div id="modal-new-job" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -9,7 +10,7 @@
                 </button>
             </div>
             <div>
-                <img style="max-width:98%;display:block;margin:auto;padding-top:1%" src= "/static/img/excel_ejemplo.png">
+                <img style="max-width:98%;display:block;margin:auto;padding-top:1%" src= "{% static 'img/excel_example_eng.png' %}">
             </div>
             <div class="modal-body">
                 <form method="post" class="uniForm" enctype="multipart/form-data">

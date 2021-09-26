@@ -4,16 +4,13 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-from scrapy.exceptions import NotSupported
-from django.db.utils import IntegrityError
+import numpy as np
 
-from utils.business import LEN_PROPERTIES, MAX_DIF_WITNESS
+from utils.business_rules import LEN_PROPERTIES, MAX_DIF_WITNESS
 from main.models import Property, Post, ScrapyJob
 from main.utils.constants import RUNNING, FINISHED, FAILED
 from scrapy_app.spiders.idealista import ERROR_CODE
 from telegram_bot.errors import report_error
-
-import numpy as np
 
 
 class ProcessPostPipeline:

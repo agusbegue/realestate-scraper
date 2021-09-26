@@ -1,12 +1,11 @@
+from requests import post
+from requests.exceptions import ConnectionError as RequestsConnectionError
+
 from django.utils import timezone
 from django.db import models
 from django.core.validators import ValidationError
 from django.contrib.auth.models import AbstractUser
 
-from scrapyd_api import ScrapydAPI
-from requests.exceptions import ConnectionError as RequestsConnectionError
-
-from main.settings import SCRAPYD_URL
 from main.utils.excel import FileReader, FileCreator
 from main.utils import constants as c
 from telegram_bot.errors import report_error
@@ -42,10 +41,15 @@ class ScrapyJob(models.Model):
         return creator.get_data()
 
     def _send(self):
+        failed = False
         try:
-            scrapyd = ScrapydAPI(SCRAPYD_URL)
-            scrapyd.schedule('default', 'idealista', job_id=self.id)
+            r = post(f'http://localhost:6800?project=default&spider=idealista&job_id={self.id}')
+            if r.status_code != 200:
+                failed = True
         except RequestsConnectionError:
+            failed = True
+
+        if failed:
             self.status = c.FAILED
             self.save()
             report_error(self.user.username, 'Connection Error: Scrapyd server not available')
