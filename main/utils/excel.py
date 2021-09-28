@@ -120,7 +120,7 @@ class FileReader:
                 int_val = int(value)
                 return int_val != 0
             except ValueError:
-                return value.lower().strip() == 'si'
+                return value.lower().strip() == 'yes'
         return value != 0
 
     def _parse_float(self, coord):

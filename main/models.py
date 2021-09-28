@@ -43,7 +43,7 @@ class ScrapyJob(models.Model):
     def _send(self):
         failed = False
         try:
-            r = post(f'http://localhost:6800?project=default&spider=idealista&job_id={self.id}')
+            r = post(f'http://localhost:6800/schedule.json?project=default&spider=idealista&job_id={self.id}')
             if r.status_code != 200:
                 failed = True
         except RequestsConnectionError:

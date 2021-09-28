@@ -16,7 +16,17 @@ It works by extracting property prices and details from a Spanish website. The f
 
 ### Visual flow
 
-Add screenshots of flow
+First of all, each user has to login so he/she can view only his/her jobs
+
+![alt text](https://github.com/agusbegue/realestate-scraper/blob/master/data/screenshots/login.png?raw=true)
+
+Once logged in, the user can view the jobs started, and their status. The user can either download the data in an excel file, delete de job, or view the job details
+
+![alt text](https://github.com/agusbegue/realestate-scraper/blob/master/data/screenshots/dashboard.png?raw=true)
+
+If the user decides to view the details, a new screen shows up in which he/she can see each property and the average price found
+
+![alt text](https://github.com/agusbegue/realestate-scraper/blob/master/data/screenshots/properties.png?raw=true)
 
 
 ### Tools
