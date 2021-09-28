@@ -14,6 +14,13 @@ It works by extracting property prices and details from a Spanish website. The f
    - An  average of cheapest posts (in €/m²) is calculated to compare with original property
 
 
+### Tools
+
+The app uses frameworks [Django](https://www.djangoproject.com/) (for the website) and [Scrapy](https://scrapy.org/) (for web scraping).
+
+The app has error reporting via a [Telegram Bots](https://core.telegram.org/bots)
+
+
 ### Visual flow
 
 First of all, each user has to login so he/she can view only his/her jobs
@@ -28,16 +35,6 @@ If the user decides to view the details, a new screen shows up in which he/she c
 
 ![alt text](https://github.com/agusbegue/realestate-scraper/blob/master/data/screenshots/properties.png?raw=true)
 
-
-### Tools
-
-The app uses frameworks [Django](https://www.djangoproject.com/) (for the website) and [Scrapy](https://scrapy.org/) (for web scraping).
-
-The app has error reporting via a [Telegram Bots](https://core.telegram.org/bots)
-
-
-### Visual flow
-Add screenshots of flow
 
 ## How to use?
 
